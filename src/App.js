@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
 import List from "./components/List/List";
-import Map from "./components/Map/Map";
+import MapComponent from "./components/Map/MapComponent";
 import { CssBaseline, Grid } from "@mui/material";
 import { getPlacesData } from "./api";
 import { debounce } from "lodash";
@@ -24,25 +24,20 @@ function App() {
     );
   }, []);
 
-  const debouncePlacesData = debounce(async () => {
-    if (bounds) {
-      getPlacesData(bounds.sw, bounds.ne).then((data) => {
-        setPlaces(data);
-      });
-    }
-  }, 3000);
-
+  // App.js (CORRECTED)
   useEffect(() => {
-    //any change in the coord will re render everything.
-    // if (bounds) {
-    //   getPlacesData(bounds.sw, bounds.ne).then((data) => {
-    //     setPlaces(data);
-    //   });
-    // }
-    return () => {
-      debouncePlacesData();
-    };
-  }, [coordinates, bounds]);
+    const debouncedFetch = debounce(async () => {
+      if (bounds) {
+        const data = await getPlacesData(bounds.sw, bounds.ne);
+        setPlaces(data);
+      }
+    }, 1000); // 1-second debounce
+
+    debouncedFetch();
+
+    // Cleanup: Cancel pending debounce on unmount/dependency change
+    return () => debouncedFetch.cancel();
+  }, [coordinates, bounds]); // Only run when bounds change
   return (
     <>
       <CssBaseline />
@@ -53,7 +48,7 @@ function App() {
         </Grid>
         <Grid item xs={12} md={8}>
           {/* the comp that renders the map, state is passed from app  */}
-          <Map
+          <MapComponent
             coordinates={coordinates}
             setCoordinates={setCoordinates}
             bounds={bounds}
