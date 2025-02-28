@@ -5,6 +5,7 @@ import List from "./components/List/List";
 import Map from "./components/Map/Map";
 import { CssBaseline, Grid } from "@mui/material";
 import { getPlacesData } from "./api";
+import { debounce } from "lodash";
 function App() {
   const [places, setPlaces] = useState([]);
   // states passed down to maps, based on these the coord obj the state updates and the UI re redners
@@ -22,15 +23,25 @@ function App() {
       }
     );
   }, []);
-  useEffect(() => {
-    //any change in the coord will re render everything.
+
+  const debouncePlacesData = debounce(async () => {
     if (bounds) {
       getPlacesData(bounds.sw, bounds.ne).then((data) => {
-        console.log(coordinates);
-        console.log(bounds);
         setPlaces(data);
       });
     }
+  }, 3000);
+
+  useEffect(() => {
+    //any change in the coord will re render everything.
+    // if (bounds) {
+    //   getPlacesData(bounds.sw, bounds.ne).then((data) => {
+    //     setPlaces(data);
+    //   });
+    // }
+    return () => {
+      debouncePlacesData();
+    };
   }, [coordinates, bounds]);
   return (
     <>
@@ -47,6 +58,7 @@ function App() {
             setCoordinates={setCoordinates}
             bounds={bounds}
             setBounds={setBounds}
+            places={places}
           />
         </Grid>
       </Grid>

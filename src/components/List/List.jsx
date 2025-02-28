@@ -19,7 +19,6 @@ import {
 import PlaceDetails from "../../components/PlaceDetails/PlaceDetails";
 
 const List = ({ places }) => {
-
   // places obj hold the current scrolled places.
   const [type, setType] = useState("restaurant");
   const [rating, setRating] = useState("");
@@ -43,7 +42,7 @@ const List = ({ places }) => {
         </Select>
       </FormControl>
       <Grid container spacing={2}>
-        {places.map((place, index) => (
+        {places?.map((place, index) => (
           // mapping over places by GOOGLE MAPS
           <Grid className="" item key={index} xs={12}>
             <PlaceDetails place={place} />
